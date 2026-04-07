@@ -2,7 +2,7 @@
 
 Comandos CLI utilizados en el Laboratorio I de Sistemas Operativos III
 
-Este repositorio corresponde a los comandos utilizados durante el desarrollo del primer laboratorio de la asignatura Sistemas Operativos III, con el docente Adrián Alcántara, con los tópicos:
+Este repositorio corresponde a los comandos utilizados durante el desarrollo del primer laboratorio de la asignatura Sistemas Operativos III, con el docente Adrián Alcántara, con los laboratorios:
 
 1. Instalación del Sistema Operativo Rocky Linux
 2. Configuración de Parámetros de Red en Rocky Linux
