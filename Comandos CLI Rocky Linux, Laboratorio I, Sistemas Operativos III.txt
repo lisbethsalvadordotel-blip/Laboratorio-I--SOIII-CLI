@@ -1,0 +1,163 @@
+Comandos utilizados, práctica laboratorio 1.1: Instalación del Sistema Operativo Rocky Linux
+
+============================================
+No se utilizaron comandos, la instalación se llevó a cabo a través de la interfaz gráfica de usuario.
+
+--------------------------------------------
+
+
+Comandos utilizados, práctica laboratorio 1.2: Configuración de Parámetros de Red.
+
+============================================
+
+*/ Comprobar la IP y estatus actual de a red
+
+ip a
+nmcli device status
+
+*/ Eliminar la conexión de red
+
+sudo nmcli connection delete ens160
+
+
+*/ Agregar conexión DHCP a través de CLI
+
+sudo nmcli connection add type ethernet \
+con-name ens160 \
+ifname ens160 \
+ipv4.method auto \
+autoconnect yes
+
+*/ Agregar IP estática a través de CLI
+
+sudo nmcli connection add type ethernet \
+con-name ens160 \
+ifname ens160 \
+ipv4.addresses 192.168.1.100/24 \
+ipv4.gateway 192.168.1.1 \
+ipv4.dns "8.8.8.8 8.8.4.4" \
+ipv4.method manual \
+autoconnect yes
+
+*/ Activar una conexión de red
+
+sudo nmcli connection up ens160
+
+*/ Abrir el archivo del Network Manager 
+
+cd /etc/sysconfig/network-scripts
+nano ifcfg-ens160
+
+*/ Configuración del archivo Network Manager para obtener una IP por DHCP
+
+DEVICE=ens160
+BOOTPROTO=dhcp
+ONBOOT=yes
+
+*/ Configuración del archivo Network Manager para configurar una IP estática
+
+DEVICE=ens160
+BOOTPROTO=none
+ONBOOT=yes
+IPADDR=192.168.1.100
+NETMASK=255.255.255.0
+GATEWAY=192.168.1.1
+DNS1=8.8.8.8
+DNS2=8.8.4.4
+
+*/ Comando para abrir la interfaz gráfica del Network Manager
+
+sudo nmtui
+
+*/ Comando para agregar una dirección IP estática temporal (método inestable)
+
+sudo ip addr add 192.168.1.20 dev ens160
+
+--------------------------------------------
+
+Comandos utilizados, práctica laboratorio 1.3: Gestión de Usuarios y Grupos en Rocky Linux.
+
+============================================
+
+*/ Crear usuario
+
+sudo useradd maria 
+
+*/ Asignar contraseña al usuario
+
+sudo passwd maria
+
+*/ Agregar usuario al grupo sudoers para obtener permisos de administración
+
+sudo usermod -aG wheel maria
+
+*/ Ver grupos a los que pertenece un usuario
+
+groups maria
+
+*/ Crear un grupo
+
+sudo groupadd guests
+
+*/ Crear otro usuario
+
+sudo useradd mattina
+
+*/ Agregar un usuario a un grupo
+
+sudo usermod -aG guests mattina
+
+*/ Eliminar un usuario
+
+sudo userdel -r mattina
+
+*/ Eliminar un grupo
+
+sudo groupdel guests
+
+--------------------------------------------
+
+Comandos utilizados, práctica laboratorio 1.4: Gestión de Permisos y Archivos en Rocky Linux.
+
+============================================
+
+*/ Crear un directorio
+
+mkdir materia
+
+*/ Crear un archivo de texto en el directorio creado
+
+cd materia
+touch estudiante.txt
+
+*/ Abrir el archivo con el editor de texto vi
+
+vi estudiante.txt
+
+*/ Utilizamos el comando :w para guardar y :q para salir
+*/ Comprobando que el archivo contiene la información guardada
+
+cat estudiante.txt
+
+*/ Ver los archivos junto a los permisos
+
+ls -l
+
+*/ Modificar permisos para que solamente el propietario tenga manejo absoluto sobre el archivo
+
+chmod 700 estudiante.txt
+
+*/ Modificar permisos para que solamente el grupo tenga manejo absoluto sobre el archivo
+
+chmod 070 estudiante.txt
+
+*/ Crear otro directorio y copiar el archivo a ese nuevo directorio
+
+mkdir materia2
+cp /home/ferna/Desktop/materia/estudiante.txt /home/ferna/Desktop/materia2/
+
+*/ Eliminar Directorio
+
+rm -r materia
+ls
+--------------------------------------------
