@@ -1,36 +1,111 @@
-Comandos utilizados, práctica laboratorio 1.1: Instalación del Sistema Operativo Rocky Linux
+Comandos utilizados, práctica laboratorio 1:
+Instalación y configuración inicial en Rocky Linux 9
 
-============================================
-No se utilizaron comandos, la instalación se llevó a cabo a través de la interfaz gráfica de usuario.
+============================================================
+PRACTICA 1: INSTALACIÓN DEL SISTEMA OPERATIVO ROCKY LINUX 9
+============================================================
 
---------------------------------------------
+OBJETIVO:
+Crear una máquina virtual con recursos suficientes, configurar la tarjeta de red en modo Bridge e instalar Rocky Linux 9 correctamente.
 
+IMPORTANTE:
+Esta práctica se realiza desde la interfaz gráfica del instalador, por lo tanto no se utilizan comandos durante la instalación.
 
-Comandos utilizados, práctica laboratorio 1.2: Configuración de Parámetros de Red.
+PASOS:
+1) Crear una nueva máquina virtual.
+2) Asignar recursos suficientes:
+   - RAM: mínimo 2 GB, recomendado 4 GB
+   - CPU: 2 núcleos
+   - Disco: mínimo 20 GB
+3) Configurar la tarjeta de red en modo Bridge.
+4) Montar la ISO de Rocky Linux 9.
+5) Iniciar la máquina virtual.
+6) Seleccionar el idioma de instalación.
+7) Configurar teclado, disco, usuario y contraseña.
+8) Ejecutar la instalación.
+9) Reiniciar el sistema al finalizar.
 
-============================================
-
-*/ Comprobar la IP y estatus actual de a red
-
+VERIFICACIÓN DESPUÉS DE INSTALAR:
+hostnamectl
+cat /etc/os-release
+uname -r
 ip a
+
+QUÉ DEBO COMPROBAR:
+- Que el sistema arrancó correctamente.
+- Que la versión instalada sea Rocky Linux 9.
+- Que la interfaz de red aparezca en el sistema.
+
+------------------------------------------------------------
+
+============================================================
+PRACTICA 2: CONFIGURACIÓN DE PARÁMETROS DE RED
+============================================================
+
+OBJETIVO:
+Configurar los parámetros de red utilizando DHCP e IP estática a través de la terminal.
+Configurar también los DNS de Google: 8.8.8.8 y 8.8.4.4
+
+NOTA IMPORTANTE:
+Antes de configurar la red, primero debo identificar el nombre real de la interfaz.
+En muchos casos será ens160, pero debo comprobarlo primero.
+
+PASO 1: VERIFICAR EL ESTADO ACTUAL DE LA RED
+
+# Mostrar direcciones IP e interfaces
+ip a
+
+# Mostrar estado de los dispositivos de red
 nmcli device status
 
-*/ Eliminar la conexión de red
+# Mostrar conexiones de red existentes
+nmcli connection show
 
-sudo nmcli connection delete ens160
-nmcli device status 
+QUÉ DEBO COMPROBAR:
+- El nombre de la interfaz de red, por ejemplo: ens160
+- Si está conectada o desconectada
+- Si ya tiene dirección IP asignada
 
-*/ Agregar conexión DHCP a través de CLI
+------------------------------------------------------------
+CONFIGURACIÓN POR DHCP USANDO TERMINAL
+------------------------------------------------------------
 
+OBJETIVO:
+Hacer que la máquina obtenga una dirección IP automáticamente.
+
+# Crear una conexión usando DHCP
 sudo nmcli connection add type ethernet \
 con-name ens160 \
 ifname ens160 \
 ipv4.method auto \
 autoconnect yes
+
+# Levantar o activar la conexión
+sudo nmcli connection up ens160
+
+VERIFICACIÓN:
 ip a
+nmcli device status
+nmcli connection show
 
-*/ Agregar IP estática a través de CLI
+QUÉ DEBO COMPROBAR:
+- Que la interfaz tenga una dirección IP
+- Que la conexión esté activa
 
+------------------------------------------------------------
+CONFIGURACIÓN DE IP ESTÁTICA USANDO TERMINAL
+------------------------------------------------------------
+
+OBJETIVO:
+Asignar una dirección IP fija manualmente.
+
+DATOS DE EJEMPLO:
+- IP: 192.168.100.16/24
+- Gateway: 192.168.100.1
+- DNS1: 8.8.8.8
+- DNS2: 8.8.4.4
+
+# Crear una conexión con IP estática
 sudo nmcli connection add type ethernet \
 con-name ens160 \
 ifname ens160 \
@@ -39,127 +114,352 @@ ipv4.gateway 192.168.100.1 \
 ipv4.dns "8.8.8.8 8.8.4.4" \
 ipv4.method manual \
 autoconnect yes
-ip a 
 
-*/ Activar una conexión de red
-
+# Activar la conexión
 sudo nmcli connection up ens160
 
-*/ Abrir el archivo del Network Manager 
+VERIFICACIÓN:
+ip a
+nmcli device status
+nmcli connection show
+cat /etc/resolv.conf
 
-cd /etc/sysconfig/network-scripts
-nano ifcfg-ens160
+QUÉ DEBO COMPROBAR:
+- Que aparezca la IP configurada
+- Que el gateway esté configurado
+- Que los DNS estén configurados correctamente
 
-*/ Configuración del archivo Network Manager para obtener una IP por DHCP
+------------------------------------------------------------
+MODIFICAR UNA CONEXIÓN EXISTENTE A IP ESTÁTICA
+------------------------------------------------------------
 
-DEVICE=ens160
-BOOTPROTO=dhcp
-ONBOOT=yes
+# Cambiar una conexión existente para usar IP estática
+sudo nmcli connection modify ens160 \
+ipv4.addresses 192.168.100.16/24 \
+ipv4.gateway 192.168.100.1 \
+ipv4.dns "8.8.8.8 8.8.4.4" \
+ipv4.method manual
 
-*/ Configuración del archivo Network Manager para configurar una IP estática
+# Activar nuevamente la conexión
+sudo nmcli connection up ens160
 
-DEVICE=ens160
-BOOTPROTO=none
-ONBOOT=yes
-IPADDR=192.168.100.16
-NETMASK=255.255.255.0
-GATEWAY=192.168.100.1
-DNS1=8.8.8.8
-DNS2=8.8.4.4
+VERIFICACIÓN:
+ip a
+cat /etc/resolv.conf
 
-*/ Comando para abrir la interfaz gráfica del Network Manager
+------------------------------------------------------------
+VOLVER UNA CONEXIÓN EXISTENTE A DHCP
+------------------------------------------------------------
 
+# Cambiar una conexión existente para usar DHCP
+sudo nmcli connection modify ens160 \
+ipv4.method auto \
+ipv4.addresses "" \
+ipv4.gateway "" \
+ipv4.dns ""
+
+# Activar nuevamente la conexión
+sudo nmcli connection up ens160
+
+VERIFICACIÓN:
+ip a
+nmcli connection show
+
+------------------------------------------------------------
+CONFIGURACIÓN USANDO NMTUI
+------------------------------------------------------------
+
+OBJETIVO:
+Configurar la red usando la interfaz de texto de NetworkManager.
+
+# Abrir la interfaz de texto
 sudo nmtui
 
-*/ Comando para agregar una dirección IP estática temporal (método inestable)
+PASOS DENTRO DE NMTUI:
+1) Seleccionar: Edit a connection
+2) Elegir la interfaz: ens160
+3) Si se quiere DHCP, seleccionar Automatic
+4) Si se quiere IP estática, seleccionar Manual
+5) Escribir:
+   - Dirección IP
+   - Gateway
+   - DNS
+6) Guardar cambios
+7) Salir
 
-sudo ip addr add 192.168.100.80 dev ens160
+VERIFICACIÓN:
+ip a
+cat /etc/resolv.conf
 
---------------------------------------------
+------------------------------------------------------------
+CONFIGURACIÓN TEMPORAL DE IP
+------------------------------------------------------------
 
-Comandos utilizados, práctica laboratorio 1.3: Gestión de Usuarios y Grupos en Rocky Linux.
+OBJETIVO:
+Asignar una dirección IP temporal. Esta configuración se pierde al reiniciar el sistema.
 
-============================================
+# Agregar una IP temporal
+sudo ip addr add 192.168.100.80/24 dev ens160
 
-*/ Crear usuario
+# Verificar IP temporal
+ip a
 
-sudo useradd maria 
+# Eliminar la IP temporal
+sudo ip addr del 192.168.100.80/24 dev ens160
 
-*/ Asignar contraseña al usuario
+# Verificar que fue eliminada
+ip a
 
+------------------------------------------------------------
+PRUEBAS DE CONECTIVIDAD
+------------------------------------------------------------
+
+# Probar conectividad a Internet usando IP
+ping -c 4 8.8.8.8
+
+# Probar resolución de nombres por DNS
+ping -c 4 google.com
+
+# Ver archivo de resolución DNS
+cat /etc/resolv.conf
+
+QUÉ DEBO COMPROBAR:
+- Si responde 8.8.8.8, hay conectividad
+- Si responde google.com, los DNS están funcionando
+
+------------------------------------------------------------
+
+============================================================
+PRACTICA 3: GESTIÓN DE USUARIOS Y GRUPOS
+============================================================
+
+OBJETIVO:
+Crear usuarios y grupos, asignar permisos administrativos y eliminar usuarios y grupos cuando sea necesario.
+
+------------------------------------------------------------
+CREAR USUARIO Y AGREGARLO AL GRUPO DE ADMINISTRACIÓN
+------------------------------------------------------------
+
+# Crear un usuario con mi nombre
+sudo useradd maria
+
+# Asignar contraseña al usuario
 sudo passwd maria
 
-*/ Agregar usuario al grupo sudoers para obtener permisos de administración
-
+# Agregar el usuario al grupo wheel para permisos administrativos
 sudo usermod -aG wheel maria
 
-*/ Ver grupos a los que pertenece un usuario
-
+VERIFICACIÓN:
 groups maria
+id maria
 
-*/ Crear un grupo
+QUÉ DEBO COMPROBAR:
+- Que el usuario exista
+- Que pertenezca al grupo wheel
 
-sudo groupadd guests
+------------------------------------------------------------
+CREAR UN GRUPO Y AGREGAR UN USUARIO
+------------------------------------------------------------
 
-*/ Crear otro usuario
+# Crear el grupo guest
+sudo groupadd guest
 
+# Crear otro usuario
 sudo useradd mattina
 
-*/ Agregar un usuario a un grupo
+# Asignar contraseña al usuario
+sudo passwd mattina
 
-sudo usermod -aG guests mattina
+# Agregar el usuario al grupo guest
+sudo usermod -aG guest mattina
 
-*/ Eliminar un usuario
+VERIFICACIÓN:
+groups mattina
+id mattina
 
+QUÉ DEBO COMPROBAR:
+- Que el grupo guest exista
+- Que el usuario mattina pertenezca al grupo guest
+
+------------------------------------------------------------
+ELIMINAR USUARIO Y GRUPO
+------------------------------------------------------------
+
+# Eliminar el usuario junto con su directorio personal
 sudo userdel -r mattina
 
-*/ Eliminar un grupo
+# Eliminar el grupo
+sudo groupdel guest
 
-sudo groupdel guests
+VERIFICACIÓN:
+getent passwd mattina
+getent group guest
 
---------------------------------------------
+QUÉ DEBO COMPROBAR:
+- Que el usuario ya no exista
+- Que el grupo ya no exista
 
-Comandos utilizados, práctica laboratorio 1.4: Gestión de Permisos y Archivos en Rocky Linux.
+------------------------------------------------------------
 
-============================================
+============================================================
+PRACTICA 4: GESTIÓN DE PERMISOS Y ARCHIVOS
+============================================================
 
-*/ Crear un directorio
+OBJETIVO:
+Crear carpetas y archivos, editarlos con vi, modificar permisos, copiar archivos y eliminar directorios.
 
+------------------------------------------------------------
+CREAR CARPETA Y ARCHIVO
+------------------------------------------------------------
+
+# Crear una carpeta llamada materia
 mkdir materia
 
-*/ Crear un archivo de texto en el directorio creado
-
+# Entrar a la carpeta materia
 cd materia
+
+# Crear un archivo llamado estudiante.txt
 touch estudiante.txt
 
-*/ Abrir el archivo con el editor de texto vi
-
+# Editar el archivo con vi
 vi estudiante.txt
 
-*/ Utilizamos el comando :w para guardar y :q para salir
-*/ Comprobando que el archivo contiene la información guardada
+INDICACIONES DENTRO DE VI:
+- Presionar i para entrar en modo inserción
+- Escribir el nombre y la matrícula
+- Presionar ESC
+- Escribir :wq y luego Enter para guardar y salir
 
+# Verificar contenido del archivo
 cat estudiante.txt
 
-*/ Ver los archivos junto a los permisos
+------------------------------------------------------------
+VER Y MODIFICAR PERMISOS
+------------------------------------------------------------
 
+# Ver permisos actuales del archivo
 ls -l
 
-*/ Modificar permisos para que solamente el propietario tenga manejo absoluto sobre el archivo
-
+# Dar control total solamente al propietario
 chmod 700 estudiante.txt
 
-*/ Modificar permisos para que solamente el grupo tenga manejo absoluto sobre el archivo
+# Verificar permisos
+ls -l
 
+# Dar control total solamente al grupo propietario
 chmod 070 estudiante.txt
 
-*/ Crear otro directorio y copiar el archivo a ese nuevo directorio
+# Verificar permisos nuevamente
+ls -l
 
+NOTA:
+- chmod 700 = solo el propietario tiene todos los permisos
+- chmod 070 = solo el grupo tiene todos los permisos
+
+------------------------------------------------------------
+CREAR SEGUNDA CARPETA Y COPIAR EL ARCHIVO
+------------------------------------------------------------
+
+# Salir de la carpeta materia
+cd ..
+
+# Crear una carpeta llamada materia2
 mkdir materia2
+
+# Copiar el archivo estudiante.txt desde materia hacia materia2
+cp materia/estudiante.txt materia2/
+
+# Verificar que el archivo fue copiado
+ls materia2
+cat materia2/estudiante.txt
+
+NOTA IMPORTANTE:
+No usar rutas largas como:
 cp /home/lissalvador/Desktop/materia/estudiante.txt /home/lissalvador/Desktop/materia2/
 
-*/ Eliminar Directorio
+Porque puede cambiar el nombre del usuario o la ubicación.
+Es mejor usar rutas simples y más seguras:
+cp materia/estudiante.txt materia2/
 
+------------------------------------------------------------
+ELIMINAR LA CARPETA ORIGINAL
+------------------------------------------------------------
+
+# Eliminar la carpeta materia junto con su contenido
 rm -r materia
+
+# Verificar que fue eliminada
 ls
---------------------------------------------
+
+QUÉ DEBO COMPROBAR:
+- Que la carpeta materia ya no exista
+- Que materia2 siga existiendo con la copia del archivo
+
+------------------------------------------------------------
+
+============================================================
+ERRORES COMUNES Y COMANDOS DE APOYO
+============================================================
+
+# Ver interfaces de red
+ip a
+
+# Ver dispositivos de red y su estado
+nmcli device status
+
+# Ver conexiones creadas
+nmcli connection show
+
+# Activar una conexión
+sudo nmcli connection up ens160
+
+# Si no hay Internet, probar conectividad
+ping -c 4 8.8.8.8
+
+# Si no resuelve nombres, revisar DNS
+ping -c 4 google.com
+cat /etc/resolv.conf
+
+# Verificar grupos de un usuario
+groups nombre_usuario
+id nombre_usuario
+
+# Ver permisos de archivos
+ls -l
+
+# Ver contenido de un archivo
+cat nombre_archivo
+
+------------------------------------------------------------
+
+============================================================
+RESUMEN RÁPIDO DE LO QUE PIDE CADA PRÁCTICA
+============================================================
+
+PRACTICA 1:
+- Crear VM
+- Poner red en Bridge
+- Instalar Rocky Linux 9
+
+PRACTICA 2:
+- Configurar red por DHCP
+- Configurar red con IP estática
+- Configurar DNS de Google
+- Probar conectividad
+
+PRACTICA 3:
+- Crear usuario
+- Asignar contraseña
+- Agregar al grupo wheel
+- Crear grupo guest
+- Crear otro usuario y agregarlo a guest
+- Eliminar usuario y grupo
+
+PRACTICA 4:
+- Crear carpeta materia
+- Crear archivo estudiante.txt
+- Editarlo con vi
+- Cambiar permisos
+- Crear carpeta materia2
+- Copiar estudiante.txt
+- Eliminar carpeta materia
