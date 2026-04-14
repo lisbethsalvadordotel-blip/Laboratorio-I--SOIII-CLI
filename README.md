@@ -1,4 +1,4 @@
-# Laboratorio-I--SOIII-CLI
+# Lista de comandos utilizados en los LABS de SOIII
 
 Comandos CLI utilizados en el Laboratorio I de Sistemas Operativos III
 
