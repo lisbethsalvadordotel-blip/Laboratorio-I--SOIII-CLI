@@ -18,7 +18,7 @@ nmcli device status
 */ Eliminar la conexión de red
 
 sudo nmcli connection delete ens160
-
+nmcli device status 
 
 */ Agregar conexión DHCP a través de CLI
 
@@ -27,17 +27,19 @@ con-name ens160 \
 ifname ens160 \
 ipv4.method auto \
 autoconnect yes
+ip a
 
 */ Agregar IP estática a través de CLI
 
 sudo nmcli connection add type ethernet \
 con-name ens160 \
 ifname ens160 \
-ipv4.addresses 192.168.1.100/24 \
-ipv4.gateway 192.168.1.1 \
+ipv4.addresses 192.168.100.16/24 \
+ipv4.gateway 192.168.100.1 \
 ipv4.dns "8.8.8.8 8.8.4.4" \
 ipv4.method manual \
 autoconnect yes
+ip a 
 
 */ Activar una conexión de red
 
@@ -59,9 +61,9 @@ ONBOOT=yes
 DEVICE=ens160
 BOOTPROTO=none
 ONBOOT=yes
-IPADDR=192.168.1.100
+IPADDR=192.168.100.16
 NETMASK=255.255.255.0
-GATEWAY=192.168.1.1
+GATEWAY=192.168.100.1
 DNS1=8.8.8.8
 DNS2=8.8.4.4
 
@@ -71,7 +73,7 @@ sudo nmtui
 
 */ Comando para agregar una dirección IP estática temporal (método inestable)
 
-sudo ip addr add 192.168.1.20 dev ens160
+sudo ip addr add 192.168.100.80 dev ens160
 
 --------------------------------------------
 
@@ -154,7 +156,7 @@ chmod 070 estudiante.txt
 */ Crear otro directorio y copiar el archivo a ese nuevo directorio
 
 mkdir materia2
-cp /home/ferna/Desktop/materia/estudiante.txt /home/ferna/Desktop/materia2/
+cp /home/lissalvador/Desktop/materia/estudiante.txt /home/lissalvador/Desktop/materia2/
 
 */ Eliminar Directorio
 
